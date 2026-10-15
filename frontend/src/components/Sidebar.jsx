@@ -53,6 +53,7 @@ const NAV = {
     { label: 'Attendance Approval', path: '/admin/attendance/approval', icon: 'attApproval'},
     { label: 'Daily Attendance',    path: '/admin/attendance/daily',    icon: 'dailyAtt'   },
     // ──────────────────────────────────────────
+    { label: 'Accounting',          path: '/admin/accounting',          icon: 'accounting' },
     { label: 'Invoicing & Payments', path: '/admin/invoicing',          icon: 'invoicing'  },
     { label: 'CRM Management',      path: '/admin/crm',                 icon: 'crm'        },
     { label: 'Profile',             path: '/admin/profile',             icon: 'profile'    },

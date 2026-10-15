@@ -90,6 +90,7 @@ export default function App() {
                 <Route path="attendance/report"   element={<AttendanceReport />} />
                 <Route path="attendance/approval" element={<AttendanceApproval />} />
                 <Route path="attendance/daily"    element={<DailyAttendance />} />
+                <Route path="accounting"          element={<Accounting />} />
                 <Route path="invoicing"            element={<InvoicingPayments />} />
                 <Route path="crm"                 element={<CrmManagement />} />
                 <Route path="profile"             element={<Profile />} />
