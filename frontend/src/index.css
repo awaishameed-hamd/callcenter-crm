@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════════
+   META-VOICE  —  Brand Color Tokens & Font Theme
+   Only brand-specific tokens here.
+   Standard Tailwind gray/white/blue classes are untouched
+   so content-area pages (white cards, dark text) render correctly.
+   The sidebar & dashboard use explicit inline styles.
+   ═══════════════════════════════════════════════════════════ */
+
+@theme {
+  /* ── Official Meta-Voice palette ── */
+  --color-mv-peach:  #FBDCB4;   /* Light Peach   – highlights   */
+  --color-mv-brown:  #AA7F56;   /* Warm Brown    – accents       */
+  --color-mv-dark:   #49311E;   /* Dark Brown    – buttons       */
+  --color-mv-navy:   #061321;   /* Deep Navy     – sidebar bg    */
+  --color-mv-slate:  #3F4753;   /* Slate Gray    – sidebar cards */
+  --color-mv-steel:  #5C6D82;   /* Steel Blue    – borders       */
+  --color-mv-muted:  #9FA7B2;   /* Light Steel   – labels        */
+
+  /* ── Brand fonts ── */
+  --font-brand:   'Orbitron',  sans-serif;   /* META-VOICE name only */
+  --font-heading: 'Rajdhani',  sans-serif;   /* headings             */
+  --font-body:    'DM Sans',   sans-serif;   /* body                 */
+  --default-font-family: 'DM Sans', sans-serif;
+}
+
+/* ── Base styles ── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background-color: #F0F2F5;
+  color: #1F2937;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Dark date/time input calendar icon fix ── */
+/* Default: inverted (white) for inputs inside dark filter bars */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) opacity(0.6);
+  cursor: pointer;
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="time"]::-webkit-calendar-picker-indicator:hover {
+  filter: invert(1) opacity(1);
+}
+/* Override: black icon for inputs on white/light backgrounds */
+input[type="date"].picker-dark::-webkit-calendar-picker-indicator,
+input[type="time"].picker-dark::-webkit-calendar-picker-indicator {
+  filter: brightness(0) opacity(0.55);
+  cursor: pointer;
+}
+input[type="date"].picker-dark::-webkit-calendar-picker-indicator:hover,
+input[type="time"].picker-dark::-webkit-calendar-picker-indicator:hover {
+  filter: brightness(0) opacity(1);
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: #F0F2F5; }
+::-webkit-scrollbar-thumb  { background: #CBD5E1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #AA7F56; }
