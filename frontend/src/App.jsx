@@ -18,6 +18,7 @@ import DailyAttendance from './pages/DailyAttendance'
 import CrmManagement from './pages/CrmManagement'
 import InvoicingPayments from './pages/InvoicingPayments'
 import Accounting from './pages/accountant/Accounting'
+import Leave from './pages/Leave'
 import Layout from './components/Layout'
 
 /** Redirects HR Managers away from pages they shouldn't access. */
@@ -124,6 +125,7 @@ export default function App() {
                 <Route path="reports"            element={<NoHR><Reports /></NoHR>} />
                 <Route path="working-days"       element={<HROnly><WorkingDays /></HROnly>} />
                 <Route path="attendance"         element={<Attendance />} />
+                <Route path="leave"              element={<Leave />} />
                 <Route path="attendance/report"  element={<AttendanceReport />} />
                 <Route path="attendance/approval"element={<HROnly><AttendanceApproval /></HROnly>} />
                 <Route path="attendance/daily"  element={<HROnly><DailyAttendance /></HROnly>} />
@@ -142,6 +144,7 @@ export default function App() {
                 <Route path="new-sale"   element={<NewSale />} />
                 <Route path="my-sales"   element={<MySales />} />
                 <Route path="attendance" element={<Attendance />} />
+                <Route path="leave"      element={<Leave />} />
                 <Route path="profile"    element={<Profile />} />
                 <Route path="*"          element={<Navigate to="dashboard" replace />} />
               </Routes>

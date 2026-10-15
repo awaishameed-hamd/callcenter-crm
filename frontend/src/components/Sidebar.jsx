@@ -1,7 +1,7 @@
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import api from '../api/axios'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 
 // ── SVG icon helper ───────────────────────────────────────────────────────────
 const Icon = ({ path, size = 'w-[18px] h-[18px]' }) => (
@@ -26,6 +26,7 @@ const ICONS = {
   attApproval:        'M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z',
   dailyAtt:           'M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z',
   workingDays:        'M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z',
+  leave:              'M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0z',
   crm:                'M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.764-.384.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z',
   invoicing:          'M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z',
   accounting:         'M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0118 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25',
@@ -57,12 +58,16 @@ const NAV = {
     { label: 'Profile',             path: '/director/profile',            icon: 'profile'   },
   ],
   manager: [
-    { label: 'Sales Dashboard', path: '/manager/dashboard', icon: 'dashboard'  },
-    { label: 'My Team',    path: '/manager/team',        icon: 'team'       },
-    { label: 'Approvals',  path: '/manager/approvals',  icon: 'approvals'  },
-    { label: 'Sales Report', path: '/manager/reports',  icon: 'reports'    },
-    { label: 'Attendance', path: '/manager/attendance', icon: 'attendance' },
-    { label: 'Profile',    path: '/manager/profile',    icon: 'profile'    },
+    { label: 'Sales Dashboard',     path: '/manager/dashboard',          icon: 'dashboard'  },
+    { label: 'My Team',             path: '/manager/team',               icon: 'team'       },
+    { label: 'Approvals',           path: '/manager/approvals',          icon: 'approvals'  },
+    { label: 'Sales Report',        path: '/manager/reports',            icon: 'reports'    },
+    { label: 'My Attendance',       path: '/manager/attendance',         icon: 'attendance' },
+    { label: 'Leave',               path: '/manager/leave',              icon: 'leave'      },
+    { label: 'Attendance Report',   path: '/manager/attendance/report',  icon: 'attReport'  },
+    { label: 'Attendance Approval', path: '/manager/attendance/approval',icon: 'attApproval'},
+    { label: 'Daily Attendance',    path: '/manager/attendance/daily',   icon: 'dailyAtt'   },
+    { label: 'Profile',             path: '/manager/profile',            icon: 'profile'    },
   ],
   // Accountant Manager — restricted nav (no Approvals, no Attendance)
   manager_accountant: [
@@ -83,11 +88,12 @@ const NAV = {
     { label: 'Profile',            path: '/manager/profile',             icon: 'profile'     },
   ],
   agent: [
-    { label: 'Sales Dashboard', path: '/agent/dashboard', icon: 'dashboard'  },
-    { label: 'New Sale',  path: '/agent/new-sale',   icon: 'newSale'    },
-    { label: 'My Sales',  path: '/agent/my-sales',   icon: 'mySales'    },
-    { label: 'Attendance',path: '/agent/attendance', icon: 'attendance' },
-    { label: 'Profile',   path: '/agent/profile',    icon: 'profile'    },
+    { label: 'Sales Dashboard', path: '/agent/dashboard',  icon: 'dashboard'  },
+    { label: 'New Sale',        path: '/agent/new-sale',   icon: 'newSale'    },
+    { label: 'My Sales',        path: '/agent/my-sales',   icon: 'mySales'    },
+    { label: 'My Attendance',   path: '/agent/attendance', icon: 'attendance' },
+    { label: 'Leave',           path: '/agent/leave',      icon: 'leave'      },
+    { label: 'Profile',         path: '/agent/profile',    icon: 'profile'    },
   ],
 }
 
@@ -116,6 +122,8 @@ const LABEL_GRAD = {
   'Attendance Report':    { grad: 'linear-gradient(90deg,#132E57,#3A6B3A)',                      border: '#132E57', icon: '#3A6B3A'  },
   'Attendance Approval':  { grad: 'linear-gradient(90deg,#D7A520,#1E8496)',                      border: '#D7A520', icon: '#1E8496'  },
   'Daily Attendance':     { grad: 'linear-gradient(90deg,#C25A1F,#7B2D8E)',                      border: '#C25A1F', icon: '#7B2D8E'  },
+  'My Attendance':        { grad: 'linear-gradient(90deg,#CBB26A,#C25A1F)',                      border: '#CBB26A', icon: '#CBB26A'  },
+  'Leave':               { grad: 'linear-gradient(90deg,#D7A520,#C25A1F)',                      border: '#D7A520', icon: '#D7A520'  },
   'Manage Working Days':  { grad: 'linear-gradient(90deg,#3A6B3A,#1E8496,#132E57)',              border: '#3A6B3A', icon: '#1E8496'  },
   'Invoicing & Payments': { grad: 'linear-gradient(90deg,#3A6B3A,#D7A520)',                      border: '#3A6B3A', icon: '#D7A520'  },
   'Accounting':           { grad: 'linear-gradient(90deg,#132E57,#1E8496)',                      border: '#132E57', icon: '#1E8496'  },
@@ -142,7 +150,27 @@ const C = {
 export default function Sidebar({ collapsed, onToggle }) {
   const { user, role, logout } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const fileRef = useRef(null)
+
+  // ── Attendance approval pending badge ───────────────────────────────────────
+  const [attPendingCount, setAttPendingCount] = useState(0)
+  const [leavePendingCount, setLeavePendingCount] = useState(0)
+
+  const fetchBadges = useCallback(async () => {
+    if (!['admin', 'director', 'manager'].includes(role)) return
+    try {
+      const [attRes, leaveRes] = await Promise.all([
+        api.get('/attendance/approval'),
+        api.get('/leaves/pending-count'),
+      ])
+      const attList = attRes.data?.data ?? attRes.data ?? []
+      setAttPendingCount(Array.isArray(attList) ? attList.filter(a => a.approval_status === 'pending').length : 0)
+      setLeavePendingCount(leaveRes.data?.count ?? 0)
+    } catch { /* ignore */ }
+  }, [role])
+
+  useEffect(() => { fetchBadges() }, [fetchBadges, location.pathname])
 
   // Avatar stored in localStorage per user
   const avatarKey = `avatar_${user?.id}`
@@ -274,53 +302,71 @@ export default function Sidebar({ collapsed, onToggle }) {
 
       {/* ── Navigation ───────────────────────────────────────── */}
       <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto" style={{ paddingTop:'8px', paddingBottom:'16px' }}>
-        {links.map(({ label, path, icon }) => (
-          <NavLink
-            key={path}
-            to={path}
-            end={!path.endsWith('/report') && !path.endsWith('/approval') && !path.endsWith('/working-days') && !path.endsWith('/daily')}
-            style={({ isActive }) => ({
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.625rem',
-              padding: '0.3rem 0.75rem',
-              borderRadius: '0.5rem',
-              fontSize: '1rem',
-              fontFamily: "'Rajdhani', sans-serif",
-              fontWeight: 600,
-              letterSpacing: '0.03em',
-              transition: 'all 0.15s ease',
-              textDecoration: 'none',
-              background: isActive ? C.bgActive : 'transparent',
-              color:      isActive ? C.navy : C.slate,
-              borderLeft: isActive ? `3px solid ${C.teal}` : '3px solid transparent',
-            })}
-            onMouseEnter={e => {
-              if (!e.currentTarget.dataset.active) {
-                e.currentTarget.style.background = C.tealDim
-                e.currentTarget.style.color = C.navy
-              }
-            }}
-            onMouseLeave={e => {
-              if (!e.currentTarget.dataset.active) {
-                e.currentTarget.style.background = 'transparent'
-                e.currentTarget.style.color = C.slate
-              }
-            }}
-          >
-            {({ isActive }) => {
-              const g = LABEL_GRAD[label]
-              return (
+        {links.map(({ label, path, icon }) => {
+          const grad   = LABEL_GRAD[label]
+          const badge  = label === 'Attendance Approval' ? attPendingCount
+                       : label === 'Leave'               ? leavePendingCount
+                       : 0
+          return (
+            <NavLink
+              key={path}
+              to={path}
+              end={!path.endsWith('/report') && !path.endsWith('/approval') && !path.endsWith('/working-days') && !path.endsWith('/daily') && !path.endsWith('/leave')}
+              style={({ isActive }) => ({
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.625rem',
+                padding: '0.3rem 0.75rem',
+                borderRadius: '0.5rem',
+                fontSize: '1rem',
+                fontFamily: "'Rajdhani', sans-serif",
+                fontWeight: 600,
+                letterSpacing: '0.03em',
+                transition: 'all 0.15s ease',
+                textDecoration: 'none',
+                background: isActive ? C.bgActive : 'transparent',
+                color:      isActive ? C.navy : C.slate,
+                borderLeft: isActive
+                  ? `3px solid ${grad?.border ?? C.teal}`
+                  : '3px solid transparent',
+              })}
+              onMouseEnter={e => {
+                const link = e.currentTarget
+                if (link.getAttribute('aria-current') !== 'page') {
+                  link.style.background = C.tealDim
+                  link.style.color = C.navy
+                }
+              }}
+              onMouseLeave={e => {
+                const link = e.currentTarget
+                if (link.getAttribute('aria-current') !== 'page') {
+                  link.style.background = 'transparent'
+                  link.style.color = C.slate
+                }
+              }}
+            >
+              {({ isActive }) => (
                 <>
-                  <span style={{ color: isActive ? C.teal : C.iconMuted, display: 'flex' }}>
+                  <span style={{ color: isActive ? (grad?.icon ?? C.teal) : C.iconMuted, display: 'flex', flexShrink: 0 }}>
                     <Icon path={ICONS[icon]} />
                   </span>
-                  {label}
+                  <span style={{ flex: 1 }}>{label}</span>
+                  {badge > 0 && (
+                    <span style={{
+                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                      minWidth: 18, height: 18, borderRadius: 9999, padding: '0 5px',
+                      fontSize: 10, fontWeight: 800, lineHeight: 1,
+                      background: '#DC2626', color: '#fff',
+                      fontFamily: '"Rajdhani", sans-serif',
+                    }}>
+                      {badge > 99 ? '99+' : badge}
+                    </span>
+                  )}
                 </>
-              )
-            }}
-          </NavLink>
-        ))}
+              )}
+            </NavLink>
+          )
+        })}
       </nav>
 
       {/* ── Logout ───────────────────────────────────────────── */}

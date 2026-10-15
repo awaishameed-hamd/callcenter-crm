@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\WorkingDayController;
 use App\Http\Controllers\ClientController;
@@ -87,6 +88,17 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/{attendance}/edit-time',      [AttendanceController::class, 'editTime']);
     });
     // ────────────────────────────────────────────────────────────────────────
+
+    // ─── Leaves ──────────────────────────────────────────────────────────────
+    Route::prefix('leaves')->group(function () {
+        Route::get('/pending-count',    [LeaveController::class, 'pendingCount']);
+        Route::get('/my',               [LeaveController::class, 'myLeaves']);
+        Route::get('/',                 [LeaveController::class, 'index']);
+        Route::post('/',                [LeaveController::class, 'store']);
+        Route::post('/{leave}/approve', [LeaveController::class, 'approve']);
+        Route::post('/{leave}/reject',  [LeaveController::class, 'reject']);
+    });
+    // ─────────────────────────────────────────────────────────────────────────
 
     // ─── Invoicing & Payments (admin only) ──────────────────────────────────
     Route::prefix('admin/invoicing')->group(function () {
